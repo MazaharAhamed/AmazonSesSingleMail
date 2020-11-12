@@ -4,14 +4,15 @@ using System.Collections.Generic;
 using Amazon.SimpleEmail;
 using Amazon.SimpleEmail.Model;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace AmazonSESSample
 {
     class Program
     {
-        static readonly string senderAddress = "testemailinn@gmail.com";
+        static readonly string senderAddress = "emailtestinn123@gmail.com";
 
-        static readonly string receiverAddress = "testemailinn1@gmail.com";
+        static readonly string receiverAddress = "testemailinn@gmail.com";
 
         // The configuration set to use for this email. If you do not want to use a
         // configuration set, comment out the following property and the
@@ -35,11 +36,12 @@ namespace AmazonSESSample
 
         static void Main(string[] args)
         {
+            
             var watch = new Stopwatch();
             watch.Start();
             using (var client = new AmazonSimpleEmailServiceClient(RegionEndpoint.USWest2))
             {
-                for (int i = 1; i <=20; i++)
+                for (int i = 1; i <= 30; i++)
                 {
                     var subject = $"Amazon SES test {i} (AWS SDK for .NET)";
                     var sendRequest = new SendEmailRequest
@@ -75,7 +77,48 @@ namespace AmazonSESSample
                     try
                     {
                         Console.WriteLine("Sending email using Amazon SES...");
-                        var response = client.SendEmail(sendRequest);
+                        Parallel.Invoke(
+                            () =>
+                            {
+                                #region Starting
+                                Debug.WriteLine("Starting Operation 1");
+                                #endregion
+                                var response = client.SendEmail(sendRequest);
+                                #region Ending
+                                Debug.WriteLine("Completed Operation 1");
+                                #endregion
+                            },
+                            () =>
+                            {
+                                #region Starting
+                                Debug.WriteLine("Starting Operation 2");
+                                #endregion
+                                var response = client.SendEmail(sendRequest);
+                                #region Ending
+                                Debug.WriteLine("Completed Operation 2");
+                                #endregion
+                            },
+                            () =>
+                            {
+                                #region Starting
+                                Debug.WriteLine("Starting Operation 3");
+                                #endregion
+                                var response = client.SendEmail(sendRequest);
+                                #region Ending
+                                Debug.WriteLine("Completed Operation 3");
+                                #endregion
+                            },
+                            () =>
+                            {
+                                #region Starting
+                                Debug.WriteLine("Starting Operation 4");
+                                #endregion
+                                var response = client.SendEmail(sendRequest);
+                                #region Ending
+                                Debug.WriteLine("Completed Operation 4");
+                                #endregion
+                            }
+                            );
                         Console.WriteLine("The email was sent successfully.");
                     }
                     catch (Exception ex)
@@ -88,8 +131,8 @@ namespace AmazonSESSample
                 watch.Stop();
                 TimeSpan ts = watch.Elapsed;
 
-                Console.WriteLine($"It took {ts.Seconds} seconds to send 20 emails");
-                
+                Console.WriteLine($"It took {ts.Seconds} seconds to send 30 emails");
+
                 Console.Write("Press any key to continue...");
                 Console.ReadKey();
             }
